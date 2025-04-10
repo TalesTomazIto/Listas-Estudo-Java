@@ -6,7 +6,7 @@ public class ProdutosImpares {
             if (i % 2 != 0) {
                 for (int j = 15; j <= 30 ; j++) {
                     if (j % 2 != 0) {
-                        System.out.println(i * j);
+                        System.out.println(i *= j);
                     }
                 }
             }
