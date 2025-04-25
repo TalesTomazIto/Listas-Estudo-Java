@@ -166,6 +166,7 @@ public class LivrariaVirtual {
                         impresso.setEstoque(impresso.getEstoque() + 1);
                         System.out.println("Nova quantidade: " + impresso.getEstoque());
                         encontrado = true;
+                        em.merge(impresso);
                         break;
                     }
                 }
@@ -188,7 +189,7 @@ public class LivrariaVirtual {
             em.getTransaction().rollback();
             e.printStackTrace();
         } finally {
-            em.close();
+
         }
     }
 
@@ -287,6 +288,11 @@ public class LivrariaVirtual {
         }
 
         System.out.println("Venda finalizada para o cliente: " + nomeCliente);
+    }
+
+    public void fechar() {
+        em.close();
+        emf.close();
     }
 
 }

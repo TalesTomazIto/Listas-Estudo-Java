@@ -44,6 +44,7 @@ public class Main {
                     break;
                 case 0:
                     System.out.println("Encerrando o sistema. Até mais!");
+                    sistema.fechar();
                     break;
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
