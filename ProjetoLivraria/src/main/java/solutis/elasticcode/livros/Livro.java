@@ -1,6 +1,16 @@
 package solutis.elasticcode.livros;
 
+import jakarta.persistence.*;
+
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "livroTipo")
 public abstract class Livro {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
     private String titulo;
     private String autores;
     private String editora;

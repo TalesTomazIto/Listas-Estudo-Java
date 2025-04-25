@@ -1,9 +1,13 @@
 package solutis.elasticcode;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import solutis.elasticcode.livros.Eletronico;
 import solutis.elasticcode.livros.Impresso;
 import solutis.elasticcode.livros.Livro;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
@@ -12,12 +16,15 @@ public class LivrariaVirtual {
     private final int MAX_IMPRESSOS = 10;
     private final int MAX_ELETRONICOS = 20;
     private final int MAX_VENDAS = 50;
-    private List<Impresso> impressos;
-    private List<Eletronico> eletronicos;
-    private List<Venda> vendas;
+    private List<Impresso> impressos = new ArrayList<>();
+    private List<Eletronico> eletronicos = new ArrayList<>();
+    private List<Venda> vendas = new ArrayList<>();
     private int numImpressos;
     private int numEletronicos;
     private int numVendas;
+
+    private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("hiberMySQL");
+    EntityManager em = emf.createEntityManager();
 
     public LivrariaVirtual() {
     }
@@ -91,82 +98,97 @@ public class LivrariaVirtual {
         this.numVendas = numVendas;
     }
 
-    public void cadastrarLivro(Scanner sc) {
-        System.out.println("Digite o número do tipo de livro a ser cadastrado:");
-        System.out.println("1. Eletrônico");
-        System.out.println("2. Impresso");
-        System.out.println("3. Ambos");
-        int escolha = sc.nextInt();
-        sc.nextLine();
+    public void cadastrarLivro(Scanner sc) throws Exception{
+        try {
+            System.out.println("Digite o número do tipo de livro a ser cadastrado:");
+            System.out.println("1. Eletrônico");
+            System.out.println("2. Impresso");
+            System.out.println("3. Ambos");
+            int escolha = sc.nextInt();
+            sc.nextLine();
 
-        if ((escolha == 1 || escolha == 3) && eletronicos.size() >= MAX_ELETRONICOS) {
-            System.out.println("Não é possível cadastrar mais livros eletrônicos.");
-            return;
-        }
-        if ((escolha == 2 || escolha == 3) && impressos.size() >= MAX_IMPRESSOS) {
-            System.out.println("Não é possível cadastrar mais livros impressos.");
-            return;
-        }
+            if ((escolha == 1 || escolha == 3) && eletronicos.size() >= MAX_ELETRONICOS) {
+                System.out.println("Não é possível cadastrar mais livros eletrônicos.");
+                return;
+            }
+            if ((escolha == 2 || escolha == 3) && impressos.size() >= MAX_IMPRESSOS) {
+                System.out.println("Não é possível cadastrar mais livros impressos.");
+                return;
+            }
 
-        System.out.println("Digite o título do livro:");
-        String titulo = sc.nextLine();
-        System.out.println("Digite o nome do autor:");
-        String autor = sc.nextLine();
-        System.out.println("Digite a editora do livro:");
-        String editora = sc.nextLine();
-        System.out.println("Digite o preço do livro:");
-        float preco = sc.nextFloat();
-        sc.nextLine();
+            System.out.println("Digite o título do livro:");
+            String titulo = sc.nextLine();
+            System.out.println("Digite o nome do autor:");
+            String autor = sc.nextLine();
+            System.out.println("Digite a editora do livro:");
+            String editora = sc.nextLine();
+            System.out.println("Digite o preço do livro:");
+            float preco = sc.nextFloat();
+            sc.nextLine();
 
-        if (escolha == 1 || escolha == 3) {
-            boolean jaExiste = false;
+            em.getTransaction().begin();
 
-            for (Eletronico eletronico : eletronicos) {
-                if (eletronico.getTitulo().equalsIgnoreCase(titulo) &&
-                        eletronico.getAutores().equalsIgnoreCase(autor) &&
-                        eletronico.getEditora().equalsIgnoreCase(editora)) {
-                    jaExiste = true;
-                    break;
+            if (escolha == 1 || escolha == 3) {
+                boolean jaExiste = false;
+
+                for (Eletronico eletronico : eletronicos) {
+                    if (eletronico.getTitulo().equalsIgnoreCase(titulo) &&
+                            eletronico.getAutores().equalsIgnoreCase(autor) &&
+                            eletronico.getEditora().equalsIgnoreCase(editora)) {
+                        jaExiste = true;
+                        break;
+                    }
+                }
+
+                if (jaExiste) {
+                    System.out.println("Este livro eletrônico já está cadastrado.");
+                } else {
+                    System.out.println("Digite o tamanho (em MB) do livro eletrônico:");
+                    int tamanho = sc.nextInt();
+                    sc.nextLine();
+
+                    Eletronico novoEletronico = new Eletronico(titulo, autor, editora, preco, tamanho);
+                    eletronicos.add(novoEletronico);
+                    System.out.println("Livro eletrônico cadastrado com sucesso.");
+
+                    em.persist(novoEletronico);
+                    em.getTransaction().commit();
                 }
             }
 
-            if (jaExiste) {
-                System.out.println("Este livro eletrônico já está cadastrado.");
-            } else {
-                System.out.println("Digite o tamanho (em MB) do livro eletrônico:");
-                int tamanho = sc.nextInt();
-                sc.nextLine();
+            if (escolha == 2 || escolha == 3) {
+                boolean encontrado = false;
 
-                Eletronico novoEletronico = new Eletronico(titulo, autor, editora, preco, tamanho);
-                eletronicos.add(novoEletronico);
-                System.out.println("Livro eletrônico cadastrado com sucesso.");
-            }
-        }
+                for (Impresso impresso : impressos) {
+                    if (impresso.getTitulo().equalsIgnoreCase(titulo) &&
+                            impresso.getAutores().equalsIgnoreCase(autor) &&
+                            impresso.getEditora().equalsIgnoreCase(editora)) {
+                        System.out.println("Livro impresso já cadastrado. Quantidade atual: " + impresso.getEstoque());
+                        impresso.setEstoque(impresso.getEstoque() + 1);
+                        System.out.println("Nova quantidade: " + impresso.getEstoque());
+                        encontrado = true;
+                        break;
+                    }
+                }
 
-        if (escolha == 2 || escolha == 3) {
-            boolean encontrado = false;
+                if (!encontrado) {
+                    System.out.println("Digite o valor do frete:");
+                    float frete = sc.nextFloat();
+                    sc.nextLine();
 
-            for (Impresso impresso : impressos) {
-                if (impresso.getTitulo().equalsIgnoreCase(titulo) &&
-                        impresso.getAutores().equalsIgnoreCase(autor) &&
-                        impresso.getEditora().equalsIgnoreCase(editora)) {
-                    System.out.println("Livro impresso já cadastrado. Quantidade atual: " + impresso.getEstoque());
-                    impresso.setEstoque(impresso.getEstoque() + 1);
-                    System.out.println("Nova quantidade: " + impresso.getEstoque());
-                    encontrado = true;
-                    break;
+                    Impresso novoImpresso = new Impresso(titulo, autor, editora, preco, frete, 1);
+                    impressos.add(novoImpresso);
+                    System.out.println("Livro impresso cadastrado com sucesso.");
+
+                    em.persist(novoImpresso);
+                    em.getTransaction().commit();
                 }
             }
-
-            if (!encontrado) {
-                System.out.println("Digite o valor do frete:");
-                float frete = sc.nextFloat();
-                sc.nextLine();
-
-                Impresso novoImpresso = new Impresso(titulo, autor, editora, preco, frete, 1);
-                impressos.add(novoImpresso);
-                System.out.println("Livro impresso cadastrado com sucesso.");
-            }
+        } catch (Exception e) {
+            em.getTransaction().rollback();
+            e.printStackTrace();
+        } finally {
+            em.close();
         }
     }
 

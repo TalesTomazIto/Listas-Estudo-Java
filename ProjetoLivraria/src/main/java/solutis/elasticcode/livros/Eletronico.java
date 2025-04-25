@@ -1,5 +1,11 @@
 package solutis.elasticcode.livros;
 
+
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("Eletronico")
 public class Eletronico extends Livro{
     private int tamanho;
 
