@@ -152,7 +152,6 @@ public class LivrariaVirtual {
                     System.out.println("Livro eletrônico cadastrado com sucesso.");
 
                     em.persist(novoEletronico);
-                    em.getTransaction().commit();
                 }
             }
 
@@ -181,9 +180,10 @@ public class LivrariaVirtual {
                     System.out.println("Livro impresso cadastrado com sucesso.");
 
                     em.persist(novoImpresso);
-                    em.getTransaction().commit();
                 }
             }
+            em.getTransaction().commit();
+
         } catch (Exception e) {
             em.getTransaction().rollback();
             e.printStackTrace();
@@ -237,7 +237,7 @@ public class LivrariaVirtual {
                     continue;
                 }
 
-                listarLivrosEletronicos(); // Deve mostrar os livros com índice
+                listarLivrosEletronicos();
 
                 System.out.println("Escolha o número do livro eletrônico que deseja comprar:");
                 int escolha = sc.nextInt();
@@ -259,7 +259,7 @@ public class LivrariaVirtual {
                     continue;
                 }
 
-                listarLivrosImpressos(); // Deve mostrar os livros com índice
+                listarLivrosImpressos();
 
                 System.out.println("Escolha o número do livro impresso que deseja comprar:");
                 int escolha = sc.nextInt();
