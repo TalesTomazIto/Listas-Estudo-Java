@@ -14,7 +14,8 @@ import java.util.List;
 @Service
 public class TarefaService {
 
-    private final TarefaRepository tarefaRepository;
+    @Autowired
+    private TarefaRepository tarefaRepository;
 
     public TarefaService(TarefaRepository tarefaRepository) {
         this.tarefaRepository = tarefaRepository;
@@ -57,5 +58,12 @@ public class TarefaService {
                 .orElseThrow(() -> new EntityNotFoundException("Tarefa com ID " + id + " não encontrada"));
 
         tarefaRepository.delete(tarefa);
+    }
+
+    public TarefaResponseDto buscarTarefaPorNome(String nome) {
+        Tarefa tarefa = tarefaRepository.findByTituloContainingIgnoreCase(nome)
+                .orElseThrow(() -> new EntityNotFoundException("Tarefa com Nome " + nome + " não encontrada"));
+
+        return TarefaMapper.toResponse(tarefa);
     }
 }

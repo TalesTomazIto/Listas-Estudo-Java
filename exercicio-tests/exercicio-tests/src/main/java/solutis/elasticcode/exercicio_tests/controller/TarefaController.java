@@ -2,6 +2,7 @@ package solutis.elasticcode.exercicio_tests.controller;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutis.elasticcode.exercicio_tests.dto.TarefaRequestDto;
@@ -20,11 +21,9 @@ public class TarefaController {
         return ResponseEntity.status(404).body(ex.getMessage());
     }
 
-    public final TarefaService tarefaService;
+    @Autowired
+    public TarefaService tarefaService;
 
-    public TarefaController(TarefaService tarefaService) {
-        this.tarefaService = tarefaService;
-    }
 
     @PostMapping
     public ResponseEntity<TarefaResponseDto> cadastrarTarefa(@RequestBody @Valid TarefaRequestDto request) {
@@ -46,9 +45,15 @@ public class TarefaController {
         return ResponseEntity.status(200).body(tarefaService.atualizarTarefa(id, request));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar/{id}")
     public ResponseEntity<Void> deletarTarefa(@PathVariable Long id) {
         tarefaService.deletarTarefa(id);
-        return ResponseEntity.noContent().build(); // HTTP 204
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/nome/{nome}")
+    public ResponseEntity<String> deletarTarefaPorNome(@PathVariable String nome) {
+        TarefaResponseDto encontrado = tarefaService.buscarTarefaPorNome(nome);
+        return ResponseEntity.status(200).body(encontrado.titulo());
     }
 }
